@@ -1,0 +1,55 @@
+\resizebox{\textwidth}{!}{
+\begin{tikzpicture}[
+  node distance=1.4cm and 2.2cm,
+  every node/.style={
+    draw, rounded corners, align=center,
+    font=\small, minimum width=3.8cm, minimum height=1cm,
+    fill=white, drop shadow
+  },
+  edge/.style={->, >=stealth, thick}
+]
+
+%% Nodes
+\node (main)               {\textbf{main}\\\texttt{main.asm}};
+
+\node (ImprimeMenu)  [below left=of main, xshift=-1cm]   {\textbf{ImprimeMenu}\\\texttt{main.asm}};
+\node (PideRadianes) [below=of main, xshift=-2.5cm]        {\textbf{PideRadianes}\\\texttt{pide-radianes.asm}};
+\node (PideGrados)   [below=of main, xshift=2.5cm]       {\textbf{PideGrados}\\\texttt{pide-grados.asm}};
+\node (TablaGrados)  [below right=of main, xshift=1cm]   {\textbf{TablaGrados}\\\texttt{tabla-grados.asm}};
+
+\node (EvalSinCos)   [below=of PideRadianes] {\textbf{EvalSinCos}\\\texttt{eval-sin-cos.asm}};
+\node (EvalGrados)   [below=of PideGrados] {\textbf{EvalGrados}\\\texttt{eval-grados.asm}};
+\node (ImprimeGrados)[below=of TablaGrados] {\textbf{ImprimeGrados}\\\texttt{imprime-grados.asm}};
+
+\node (ConvierteRangoSin) [below =of EvalGrados] {\textbf{ConvierteRangoSin}\\\texttt{convierte-rango.asm}};
+\node (ConvierteRangoCos) [below =of ImprimeGrados] {\textbf{ConvierteRangoCos}\\\texttt{convierte-rango.asm}};
+
+\node (SinFloat)    [below =of EvalSinCos] {\textbf{SinFloat}\\\texttt{sine-n.asm}};
+\node (CosFloat)    [below left=of EvalSinCos] {\textbf{CosFloat}\\\texttt{cosine-n.asm}};
+\node (SquareFloat) [below =of CosFloat] {\textbf{SquareFloat}\\\texttt{square-float.asm}};
+
+%% Edges
+\draw[edge] (main) -- (ImprimeMenu);
+\draw[edge] (main) -- (PideRadianes);
+\draw[edge] (main) -- (PideGrados);
+\draw[edge] (main) -- (TablaGrados);
+
+\draw[edge] (PideRadianes) -- (EvalSinCos);
+\draw[edge] (PideGrados)   -- (EvalGrados);
+\draw[edge] (PideGrados)   -- (ImprimeGrados);
+\draw[edge] (TablaGrados)  -- (EvalGrados);
+\draw[edge] (TablaGrados)  -- (ImprimeGrados);
+
+\draw[edge] (EvalGrados) -- (ConvierteRangoSin);
+\draw[edge] (EvalGrados) -- (ConvierteRangoCos);
+\draw[edge] (EvalGrados) -- (EvalSinCos);
+
+\draw[edge] (EvalSinCos) -- (SinFloat);
+\draw[edge] (EvalSinCos) -- (CosFloat);
+\draw[edge] (EvalSinCos) -- (SquareFloat);
+
+\draw[edge] (SinFloat)  -- (SquareFloat);
+\draw[edge] (CosFloat)  -- (SquareFloat);
+
+\end{tikzpicture}
+}
