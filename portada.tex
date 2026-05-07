@@ -1,0 +1,66 @@
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]
+  %%%%%%%%%%%%%%%%%%%% Background %%%%%%%%%%%%%%%%%%%%%%%%
+  \fill[VerdeITAM] (current page.south west) rectangle (current page.north
+  east);
+
+  \foreach \i in {2.5,...,22} { \node[rounded corners,VerdeITAM!60,draw,regular
+    polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at
+  ($(current page.west)+(2.5,-5)$) {} ; }
+
+  %%%%%%%%%%%%%%%%%%%% Background Polygon %%%%%%%%%%%%%%%%%%%%
+  \foreach \i in {0.5,...,22} { \node[rounded corners,VerdeITAM!60,draw,regular
+    polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at
+  ($(current page.north west)+(2.5,0)$) {} ; }
+
+  \foreach \i in {0.5,...,22} { \node[rounded corners,VerdeITAM!90,draw,regular
+    polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at
+  ($(current page.north east)+(0,-9.5)$) {} ; }
+
+  \foreach \i in {21,...,6} { \node[VerdeITAM!85,rounded corners,draw,regular
+    polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at
+  ($(current page.south east)+(-0.2,-0.45)$) {} ; }
+
+  %%%%%%%%%%%%%%%%%%%% Title of the Report %%%%%%%%%%%%%%%%%%%%
+  \node[
+    left, VerdeITAM!5,
+    minimum width=0.625*\paperwidth,
+    minimum height=3cm,
+    text width=0.625*\paperwidth,
+    align=flush right,
+    rounded corners
+  ] at ($(current page.north east)+(-0.5,-9.5)$) {
+    {\large \textsc{Organización y Programación \\ de Computadoras}}
+  };
+
+  %%%%%%%%%%%%%%%%%%%% Subtitle %%%%%%%%%%%%%%%%%%%%
+  \node[
+    left, VerdeITAM!10,
+    minimum width=0.625*\paperwidth,
+    minimum height=2cm,
+    text width=0.625*\paperwidth,
+    align=flush right,
+    rounded corners
+  ] at ($(current page.north east)+(-0.5,-11)$) {
+    {\fontsize{25}{30} \selectfont \bfseries Funciones trigonométricas \\ en Ensamblador x86}
+  };
+
+  %%%%%%%%%%%%%%%%%%%% Author Name %%%%%%%%%%%%%%%%%%%%
+  \node[
+    left, VerdeITAM!5,
+    minimum width=0.625*\paperwidth,
+    minimum height=2cm,
+    text width=0.625*\paperwidth,
+    align=flush right,
+    rounded corners
+  ] at ($(current page.north east)+(-0.5,-13)$) {
+    {\Large José Alberto Márquez Luján, 187917}
+  };
+
+  %%%%%%%%%%%%%%%%%%%% Year %%%%%%%%%%%%%%%%%%%%
+  \node[rounded corners,fill=VerdeITAM!70,text=VerdeITAM!5,regular
+  polygon,regular polygon sides=6, minimum size=2.5 cm,inner sep=0,ultra thick]
+  at ($(current page.west)+(2.5,-5)$) {\LARGE \bfseries 2026};
+
+\end{tikzpicture}

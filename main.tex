@@ -1,0 +1,153 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-noshorthands]{babel}
+\usepackage{csquotes} % para que no se queje babel
+\decimalpoint
+\usepackage{amssymb,amsmath,amsthm,amsfonts,mathtools}
+\usepackage{tcolorbox}
+\usepackage{microtype}
+
+% ---- LINKS ----
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, urlcolor=blue, linkcolor=VerdeITAM, citecolor=VerdeITAM}
+
+% ---- IMÁGENES ----
+\usepackage{graphicx}
+\graphicspath{ {imgs/} }
+
+% ---- FORMATO DE TÍTULOS ----
+\usepackage{titlesec}
+\titlespacing{\section}{0pt}{1em plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing{\subsection}{0pt}{1em plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+\titlespacing{\subsubsection}{0pt}{1em plus 4pt minus 2pt}{0pt plus 2pt minus 2pt}
+
+% ---- FORMATO DE LISTAS ----
+\usepackage{enumitem}
+\setlist[itemize]{topsep=-0.5em} % es media m para compensar
+\setlist[enumerate]{topsep=-0.5em}
+
+% ---- GRÁFICAS ----
+\usepackage{tikz}
+\usepackage{scalerel}
+\usepackage{pict2e}
+\usepackage{tkz-euclide}
+\usetikzlibrary{calc}
+\usetikzlibrary{patterns,arrows.meta}                   % Mejores flechas
+\usetikzlibrary{shadows}                                % Sombras
+\usetikzlibrary{external}                               % ¿?
+\usetikzlibrary{decorations.pathreplacing,calligraphy}  % Para poder graficar el '{'
+% Plots
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}                             % Ancho de las gráficas: width=6.5cm,
+\usepgfplotslibrary{statistics}
+\usepgfplotslibrary{fillbetween}
+% ---- PORTADA ----
+\usetikzlibrary{ shapes.geometric }
+\usepackage{anyfontsize}
+
+% ---- COLORES ----
+\usepackage{xcolor}
+\definecolor{miAzul}{RGB}{13, 33, 161}
+\definecolor{miRojo}{RGB}{186, 24, 27}
+\definecolor{VerdeITAM}{RGB}{4, 107, 83}
+
+% ---- FORMATO DE LAS PÁGINAS ----
+\usepackage[a4paper, width=165mm, top=20mm, bottom = 20mm]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+% Primera página. Comentar si se quiere que todas sean iguales
+% \fancypagestyle{firststyle}{
+%    \fancyhf{}
+%    \fancyfoot[R]{\footnotesize \thepage}
+%    \renewcommand{\headrulewidth}{0pt}
+% }
+% Para el resto del documento.
+\fancyhf{}
+% \lhead{\footnotesize Subtítulo}
+\lhead{\footnotesize \textbf{Funciones trigonométricas en Ensamblador x86}}
+\rhead{\footnotesize \today}
+\lfoot{\footnotesize J. Alberto Márquez L.}
+\cfoot{\footnotesize \textsc{Organización y Programación de Computadoras}}
+\rfoot{\footnotesize \thepage}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+\setlength{\parskip}{1em}
+\setlength{\parindent}{0cm}
+
+% ---- BIBLIOGRAFÍA ----
+\usepackage[backend=biber, style=apa]{biblatex}
+\addbibresource{referencias.bib}
+
+\title{
+  Organización y Programación de Computadoras \\
+  \large Funciones trigonométricas en Ensamblador x86
+}
+\author{José Alberto Márquez Luján, 187917}
+\date{\today}
+
+\begin{document}
+\input{portada.tex}
+% \maketitle
+% \thispagestyle{firststyle}
+
+\newpage
+\section{Introducción}
+
+Este reporte describe el diseño, implementación y análisis de un programa
+escrito enteramente en lenguaje ensamblador x86 que calcula las funciones
+trigonométricas seno y coseno. Los cálculos se hacen con la expansión de series
+de Taylor y se evalúan en la unidad de aritmética de punto flotante (FPU por
+sus siglas en inglés: \textit{Floating-Point Unit}). Para conocimientos sobre
+el lenguaje ensamblador x86, seguimos a \textcite{IrvineBook} y las notas de la
+clase de Organización y programación de computadoras.
+
+\section{Teoría}
+
+\subsection{Lenguaje ensamblador}
+
+\subsection{Tipos de datos enteros}
+
+\subsection{Tipos de datos de punto flotante}
+
+\subsection{Arquitectura del FPU y registros}
+
+\section{Conceptos matemáticos}
+
+\subsection{Expansión de las series de Taylor para seno y coseno}
+
+\subsection{Convergencia}
+
+\subsection{Residuos}
+
+\section{Diseño del programa}
+
+\subsection{Estructura modular}
+
+\subsection{Diagrama de dependencias}
+
+\subsection{Estrategia de paso de parámetros}
+
+\subsubsection{Valores de punto flotante}
+
+\subsubsection{Valores enteros}
+
+\section{Implementación}
+
+\subsection{Recurrencia en las series de Taylor}
+
+\subsection{Conversión de grados a radianes y reducción de rango}
+
+\subsection{Retos de implementación}
+
+\subsection{Consideraciones}
+
+\section{Capturas de pantalla}
+
+\section{Consideraciones de Linux}
+
+\printbibliography
+
+\end{document}
