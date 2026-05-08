@@ -77,6 +77,13 @@
 \setlength{\parskip}{1em}
 \setlength{\parindent}{0cm}
 
+% ---- TABLAS -----
+\usepackage{tabularx}
+
+% ---- GRADOS -----
+\usepackage{textcomp}
+\usepackage{gensymb}
+
 % ---- BIBLIOGRAFÍA ----
 \usepackage[backend=biber, style=apa]{biblatex}
 \addbibresource{referencias.bib}
@@ -125,6 +132,52 @@ clase de Organización y programación de computadoras.
 \section{Diseño del programa}
 
 \subsection{Estructura modular}
+
+El código está dividido en 11 archivos con terminación \texttt{.asm}. Cada
+archivo contiene uno o dos procedimientos relacionados entre sí. A
+continuación, presentamos una tabla con los procedimientos que tiene cada
+archivo y una breve descripción.
+
+\begin{center}
+  \begin{tabularx}{\textwidth}{p{10em} p{10em} X}
+    % \hline
+    Módulo & Procedimiento(s) & Descripción \\
+    \hline \hline
+    \texttt{main.asm} & \texttt{main}, \texttt{ImprimeMenu} &
+      Punto de entrada, bucle de menú, texto compartido. \\
+    \hline
+    \texttt{pide-radianes.asm} & \texttt{PideRadianes} &
+      Se encarga de pedir los radianes al usuario y leer la entrada. \\
+    \hline
+    \texttt{pide-grados.asm} & \texttt{PideGrados} &
+      Se encarga de pedir los grados al usuario y leer la entrada. \\
+    \hline
+    \texttt{tabla-grados.asm} & \texttt{TablaGrados} &
+      Se encarga de llamar a las funciones para calcular una tabla con valores de 0$\degree$ a 360$\degree$ en pasos de 10$\degree$. \\
+    \hline
+    \texttt{eval-sin-cos.asm} & \texttt{EvalSinCos} &
+      Dados los radianes, se encarga de llamar a los procedimientos para calcular seno, coseno e identidad trigonométrica. \\
+    \hline
+    \texttt{eval-grados.asm} & \texttt{EvalGrados} &
+      Dados los grados, se encarga de llamar a los procedimientos para convertir a radianes y luego evaluar. \\
+    \hline
+    \texttt{convierte-rango.asm} & \texttt{ConvierteRangoSin},\newline\texttt{ConvierteRangoCos} &
+      Convierte grados a radianes y aplica una reducción de rango. \\
+    \hline
+    \texttt{imprime-grados.asm} &  \texttt{ImprimeGrados} &
+      Se encarga del formato para imprimir los resultados cuando se manejan grados. \\
+    \hline
+    \texttt{sine-n.asm} &  \texttt{SinFloat} &
+      Evalúa $n$ términos de la serie de Taylor para $\sin(x)$, con $x$ en radianes. \\
+    \hline
+    \texttt{cosine-n.asm} &  \texttt{CosFloat} &
+      Evalúa $n$ términos de la serie de Taylor para $\cos(x)$, con $x$ en radianes. \\
+    \hline
+    \texttt{square-float.asm} &  \texttt{SquareFloat} &
+      Se encarga de elevar al cuadrado el valor en ST(0). \\
+    % \hline
+  \end{tabularx}
+\end{center}
 
 \subsection{Diagrama de dependencias}
 
