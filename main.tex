@@ -84,6 +84,11 @@
 \usepackage{textcomp}
 \usepackage{gensymb}
 
+% ---- SUBFIGURAS ----
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
 % ---- BIBLIOGRAFÍA ----
 \usepackage[backend=biber, style=apa]{biblatex}
 \addbibresource{referencias.bib}
@@ -220,11 +225,12 @@ grados a radianes.
 \subsection{Estructura modular}
 
 El código está dividido en 11 archivos con terminación \texttt{.asm}. Cada
-archivo contiene uno o dos procedimientos relacionados entre sí. A
-continuación, presentamos una tabla con los procedimientos que tiene cada
-archivo y una breve descripción.
+archivo contiene uno o dos procedimientos relacionados entre sí. En la figura
+\ref{tabla-modulos}, presentamos una tabla con los procedimientos que tiene
+cada archivo y una breve descripción.
 
-\begin{center}
+\begin{figure}[H]
+\centering
   \begin{tabularx}{\textwidth}{p{10em} p{10em} X}
     Módulo & Procedimiento(s) & Descripción \\
     \hline \hline
@@ -261,11 +267,27 @@ archivo y una breve descripción.
     \texttt{square-float.asm} &  \texttt{SquareFloat} &
       Se encarga de elevar al cuadrado el valor en ST(0). \\
   \end{tabularx}
-\end{center}
+\caption{Descripción de módulos.}
+\label{tabla-modulos}
+\end{figure}
 
 \subsection{Diagrama de dependencias}
 
+El diagrama \ref{fig:dependencias} muestra la relación entre los diferentes
+procedimientos del programa.
+
 \input{diagrama.tex}
+
+Podemos pensar en la arquitectura del programa como un diseño en 3 capas: la
+primera capa maneja la interacción con el usuario (menú e ingreso de datos); la
+segunda capa se encarga de orquestar la computación (conversión de grados a
+radianes, mandar a llamar otros procedimientos), y la tercera capa se encarga
+de proveer los métodos básicos para el cálculo de seno, coseno y cuadrados de
+un número de punto flotante.
+
+La figura \ref{fig:dependencias} solamente describe qué procedimientos mandan a
+llamar otros procedimientos, no describe cómo se comparten información entre sí
+los procedimientos. Veamos ahora la estrategia que seguimos para este problema.
 
 \subsection{Estrategia de paso de parámetros}
 
