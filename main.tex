@@ -123,11 +123,97 @@ clase de Organización y programación de computadoras.
 
 \section{Conceptos matemáticos}
 
-\subsection{Expansión de las series de Taylor para seno y coseno}
+\subsection{Series de Taylor para seno y coseno}
 
-\subsection{Convergencia}
+Según \textcite{ThomasBook}, si $f$ es una función con derivadas de todos los
+órdenes en algún intervalo que contenga a $a$ como punto interior, entonces la
+\textbf{serie de Taylor generada por $f$ en $x=a$} es
+\begin{equation}
+  \sum_{k=0}^{\infty} \frac{f^{(k)}(a)}{k!} (x-a)^k = f(a) + f'(a)(x-a) +
+    \frac{f''(a)}{2!}(x-a)^2 + \cdots.
+\end{equation}
+y la \textbf{serie de Maclaurin generada por $f$} es
+\begin{equation}
+  \sum_{k=0}^{\infty} \frac{f^{(k)}(0)}{k!} x^k = f(0) + f'(0)x +
+    \frac{f''(0)}{2!}x^2 + \cdots,
+\end{equation}
+que es la serie de Taylor generada por $f$ en $x=0$.
 
-\subsection{Residuos}
+\textcite{ThomasBook} menciona que, con frecuencia, la serie de Maclaurin
+generada por $f$ sólo se llama serie de Taylor de $f$. Nosotros seguiremos esa
+convención en este reporte.
+
+No es difícil ver que la serie de Taylor para $\sin(x)$ en $x=0$ es
+\begin{equation}
+  \sum_{k=0}^{\infty} = \frac{(-1)^k x^{2k+1}}{(2k+1)!}
+    = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \cdots,
+\end{equation}
+mientras que la serie de Taylor para $\cos(x)$ en $x=0$ es
+\begin{equation}
+  \sum_{k=0}^{\infty} = \frac{(-1)^k x^{2k}}{(2k)!}
+    = 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \cdots.
+\end{equation}
+
+\subsection{Residuos y convergencia}
+
+El teorema 24 de \textcite{ThomasBook} nos dice que, si existe una constante
+positiva $M$ tal que $\vert f^{(n+1)}(t) \vert \leq M$ para toda $t$ entre $x$
+y $a$, inclusive, entonces el término residual $R_n(x)$ del teorema de Taylor
+satisface la desigualdad
+\begin{equation} \label{residuo}
+  \vert R_n(x) \vert \leq M \frac{ \vert x - a \vert^{n+1} }{ (n+1)! }.
+\end{equation}
+y, si esta desigualdad se cumple para toda $n$ y $f$ satisface todas las demás
+condiciones del teorema de Taylor, entonces la serie converge a $f(x)$.
+
+Como todas las derivadas de $\sin(x)$ tienen valores absolutos menores o
+iguales que 1, entonces podemos aplicar \eqref{residuo} con $M = 1$ para
+obtener
+\begin{equation} \label{residuo-sin}
+  \vert R_{2k+1}(x) \vert \leq \frac{ \vert x \vert^{2k+2} }{ (2k+2)! }.
+\end{equation}
+Como el lado derecho de \eqref{residuo-sin} tiende a cero cuando $k \to
+\infty$, entonces $\vert R_{2k+1}(x) \to 0$ y la serie de Taylor para $\sin(x)$
+converge a $\sin(x)$ para toda $x$. Por lo tanto,
+\begin{equation}
+  \sin(x) = \sum_{k=0}^{\infty} = \frac{(-1)^k x^{2k+1}}{(2k+1)!}
+  = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \cdots.
+\end{equation}
+
+Análogamente, podemos aplicar \eqref{residuo} con $M = 1$ para $\cos(x)$:
+\begin{equation} \label{residuo-cos}
+  \vert R_{2k}(x) \vert \leq \frac{ \vert x \vert^{2k+1} }{ (2k+1)! }.
+\end{equation}
+De la misma manera que antes, $R_{2k} \to 0$ cuando $k \to \infty$. Por lo
+tanto, la serie converge a $\cos(x)$ para todo valor de $x$, lo que quiere
+decir que
+\begin{equation}
+  \cos(x) = \sum_{k=0}^{\infty} = \frac{(-1)^k x^{2k}}{(2k)!}
+  = 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \cdots.
+\end{equation}
+
+Notemos que, aunque ambas series convergen para toda $x$ ---lo que quiere decir
+que eventualmente producirán un resultado cercano a la función, sin importar la
+entrada---, la convergencia depende de manera importante de $\vert x \vert$. Si
+$\vert x \vert < 1$, cada término sucesivo es dramáticamente más pequeño que el
+anterior, por lo que las series convergen rápidamente. Aunque no es necesario
+que $\vert x \vert < 1$, sí conviene que $\vert x \vert$ sea pequeño. Por
+ejemplo, para $\sin(x)$ con $k=10$ y $\vert x \vert \leq \frac{\pi}{2}$, por
+\eqref{residuo-sin} tenemos que
+\begin{equation}
+  \vert R_{2(10)+1}(x) \vert \leq \frac{ \vert x \vert^{22} }{ (22)! }
+  \leq \frac{ \vert \pi/2 \vert^{22} }{ (22)! }
+  \approx 1.836 \times 10^{-17},
+\end{equation}
+lo cual es una precisión bastante razonable. Sin embargo, si realizamos el
+mismo cálculo con $x = 2\pi$, o bien, 360$\degree$, tenemos que
+\begin{equation}
+  \vert R_{2(10)+1}(2\pi) \vert \leq \frac{ \vert 2\pi \vert^{22} }{ (22)! }
+  \approx 3.23 \times 10^{-4},
+\end{equation}
+lo que implica una pérdida de precisión bastante considerable. Este hecho
+motivó, como veremos más adelante, el ajuste de rango al momento de convertir
+grados a radianes.
 
 \section{Diseño del programa}
 
@@ -140,7 +226,6 @@ archivo y una breve descripción.
 
 \begin{center}
   \begin{tabularx}{\textwidth}{p{10em} p{10em} X}
-    % \hline
     Módulo & Procedimiento(s) & Descripción \\
     \hline \hline
     \texttt{main.asm} & \texttt{main}, \texttt{ImprimeMenu} &
@@ -175,7 +260,6 @@ archivo y una breve descripción.
     \hline
     \texttt{square-float.asm} &  \texttt{SquareFloat} &
       Se encarga de elevar al cuadrado el valor en ST(0). \\
-    % \hline
   \end{tabularx}
 \end{center}
 
