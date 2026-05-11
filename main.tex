@@ -206,7 +206,7 @@ obtener
 Como el lado derecho de \eqref{residuo-sin} tiende a cero cuando $k \to
 \infty$, entonces $\vert R_{2k+1}(x) \to 0$ y la serie de Taylor para $\sin(x)$
 converge a $\sin(x)$ para toda $x$. Por lo tanto,
-\begin{equation}
+\begin{equation} \label{eq:taylor-sin}
   \sin(x) = \sum_{k=0}^{\infty} = \frac{(-1)^k x^{2k+1}}{(2k+1)!}
   = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \cdots.
 \end{equation}
@@ -218,7 +218,7 @@ Análogamente, podemos aplicar \eqref{residuo} con $M = 1$ para $\cos(x)$:
 De la misma manera que antes, $R_{2k} \to 0$ cuando $k \to \infty$. Por lo
 tanto, la serie converge a $\cos(x)$ para todo valor de $x$, lo que quiere
 decir que
-\begin{equation}
+\begin{equation} \label{eq:taylor-cos}
   \cos(x) = \sum_{k=0}^{\infty} = \frac{(-1)^k x^{2k}}{(2k)!}
   = 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \cdots.
 \end{equation}
@@ -340,7 +340,7 @@ $\cos(x)$, y regresa tres valores: $\sin^2(x) + \cos^2(x)$ en ST(0), $\cos(x)$
 en ST(1) y $\sin(x)$ en ST(0). Lo anterior está documentado a manera de
 comentario en \texttt{eval-sin-cos.asm}:
 
-\begin{lstlisting}[language=Python]
+\begin{lstlisting}[language={[x86masm]Assembler}]
 ; Entrada FPU:   ST(0) = x_sin, ST(1) = x_cos
 ; Salida  FPU:   ST(0) = f1(x),  ST(1) = cos(x),  ST(2) = sin(x)
 \end{lstlisting}
@@ -370,11 +370,123 @@ de memoria en la que estaba el parámetro pasado al procedimiento (es decir,
 hizo la llamada puede acceder al resultado al hacer \texttt{POP}. Estos
 procedimientos simplemente usan \texttt{RET} sin un operando.
 
-\section{Implementación}
+\section{Algunos detalles de la implementación}
+
+En esta sección, veremos algunos detalles de cómo implementamos el código. Por
+razones de espacio, no pondremos todo el código fuente aquí, pero se puede
+acceder al código completo en GitHub \parencite{ASMCode}.
 
 \subsection{Recurrencia en las series de Taylor}
 
+El núcleo computacional del programa es el par de procedimientos que calculan
+las series de Taylor de seno y coseno: \texttt{SinFloat} y \texttt{CosFloat}.
+Ambos procedimientos siguen el mismo patrón, pero difieren solamente en el
+término inicial y en el cálculo del denominador.
+
+En lugar de calcular cada término de manera independiente ---lo cual
+involucraría calcular factoriales y potencias demasiado grandes---, nuestra
+implementación usa una relación de recurrencia que sirve para calcular un
+término basándose en el anterior. Es decir, si $x_k$ es el $k$-ésimo término de
+la serie de Taylor de $\sin(x)$, en lugar de usar \eqref{eq:taylor-sin} para
+calcular el siguiente término, usamos la siguiente relación:
+\begin{equation}
+  x_{k+1} = x_{k} \frac{-x^2}{(2k+2)(2k+3)},
+\end{equation}
+partiendo de $x_0 = x$. De manera similar, en lugar de usar
+\eqref{eq:taylor-cos} para $\cos(x)$, usamos
+\begin{equation}
+  x_{k+1} = x_{k} \frac{-x^2}{(2k+1)(2k+2)},
+\end{equation}
+partiendo de $x_0 = 1$. Como mencionamos anteriormente, la principal diferencia
+es el término inicial y el cálculo del denominador.
+
+La recurrencia es mucho más eficiente y estable numéricamente. Al usarla, nos
+evitamos calcular valores intermedios como $13! = 6,227,020,800$ para $k=6$, y
+en su lugar vamos multiplicando cada término por algo que va reduciendo su
+magnitud.
+
+El siguiente extracto del código de \texttt{SinFloat} ilustra cómo se
+implementa la recurrencia:
+\begin{lstlisting}[language={[x86masm]Assembler}]
+; ST(0)=term, ST(1)=sum, ST(2)=-x^2, ST(3)=x
+FMUL ST(0), ST(2)      ; term *= -x^2
+
+; term /= (2k+2)(2k+3)
+PUSH EAX
+
+FILD DWORD PTR [ESP]   ; ST(0)=denom, ST(1)=term, ST(2)=sum, ...
+ADD  ESP, 4
+FDIVP ST(1), ST(0)     ; term = term / denom, pop denom
+; Ahora ST(0)=new_term, ST(1)=sum, ST(2)=-x^2, ST(3)=x
+
+FADD ST(1), ST(0)      ; sum += term
+\end{lstlisting}
+
+Un elemento importante aquí es el uso de \texttt{FILD DWORD PTR [ESP]} para
+convertir al denominador, que es un entero que calculamos usando shifts y
+multiplicaciones, a un valor de punto flotante en el FPU \textit{stack}. El
+denominador, almacenado en EAX, es cargado brevemente al \textit{runtime stack}
+solo para que la instrucción \texttt{FILD} pueda leerlo en memoria, y luego
+\texttt{ESP} se ajusta inmediatamente después. Esto evita la necesidad de una
+variable de memoria para el denominador.
+
+El FPU \textit{stack} es manejado con cuidado en el ciclo del procedimiento.
+Mantenemos cuatro valores simultáneamente: el término actual, la suma de
+términos al momento, la constante $-x^2$ y el valor original $x$ (para
+$\sin(x)$). Los comentarios a lo largo del código fueron claves para no
+perdernos. El ciclo termina después de un número fijo de iteraciones, que se
+determina por el parámetro $n$ pasado al procedimiento, y al final del
+procedimiento se descartan todos los valores intermedios; solamente dejamos el
+resultado de la suma en ST(0).
+
 \subsection{Conversión de grados a radianes y reducción de rango}
+
+El procedimiento \texttt{EvalGrados} se encarga de orquestar tres cosas: la
+conversión de  grados a radianes, reducción o simplificación del rango, y
+finalmente la evaluación de las funciones trigonométricas. Este procedimiento
+convierte grados a radianes siguiendo una estrategia de tratar con los datos
+enteros primero; es decir, si tenemos que la conversión de grados a radianes
+está dada por
+\begin{equation*}
+  \textrm{radianes} = \frac{\textrm{grados} \cdot \pi}{180},
+\end{equation*}
+el código primero divide los grados entre 180 y luego multiplica el resultado
+por $\pi$.
+
+Implementamos la conversión de la siguiente manera:
+\begin{lstlisting}[language={[x86masm]Assembler}]
+PUSH EAX
+FILD DWORD PTR [ESP]        ; ST(0) = deg (como float)
+POP  EAX
+FIDIV val180                ; ST(0) = deg / 180
+FLDPI                       ; ST(0) = pi,  ST(1) = deg/180
+FMULP ST(1), ST(0)          ; ST(0) = rad_true
+\end{lstlisting}
+Como podemos ver, cargamos los grados en el FPU \textit{stack} de una manera
+similar a lo que hicimos en la sección anterior; pero el valor de 180 lo
+tenemos en la sección de \texttt{.DATA} como \texttt{val180  DWORD 180}.
+
+\texttt{EvalGrados} tiene que hacer dos conversiones de grados a radianes: una
+antes de simplificar el rango y otra después.
+
+La reducción de rango está a cargo de \texttt{ConvierteRangoSin} y
+\texttt{ConvierteRangoCos}. Para $\sin(x)$, nos apoyamos de la siguiente tabla
+para hacer la reducción:
+\begin{figure}[H]
+\centering
+  % \begin{tabularx}{\textwidth}{p{10em} p{10em} X}
+\begin{tabular}{l l l}
+    Rango de entrada & Valor regresado & Identidad usada \\
+    \hline \hline
+    $0\degree \leq x \leq 90\degree$ & $x$ & N/A \\ \hline
+    $90\degree < x \leq 180\degree$ & $180\degree - x$ & $\sin(x) = \sin(180\degree - x)$ \\ \hline
+    $180\degree < x \leq 270\degree$ & $180\degree - x$ & $\sin(x) = - \sin(x - 180\degree) = \sin(180\degree - x)$ \\ \hline
+    $270\degree < x \leq 360\degree$ & $x - 360\degree$ & $\sin(x) = \sin(x - 360\degree)$
+  % \end{tabularx}
+\end{tabular}
+\caption{Reducción de rango para $\sin(x)$.}
+\label{tabla-rango}
+\end{figure}
 
 \subsection{Retos de implementación}
 
