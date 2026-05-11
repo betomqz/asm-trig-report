@@ -93,6 +93,32 @@
 \usepackage[backend=biber, style=apa]{biblatex}
 \addbibresource{referencias.bib}
 
+% Para el código
+\usepackage{listings}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{overleafstyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=overleafstyle}
+
 \title{
   Organización y Programación de Computadoras \\
   \large Funciones trigonométricas en Ensamblador x86
@@ -291,9 +317,58 @@ los procedimientos. Veamos ahora la estrategia que seguimos para este problema.
 
 \subsection{Estrategia de paso de parámetros}
 
+A diferencia de los lenguajes de alto nivel, con ensamblador no contamos con
+una manera concreta para pasar parámetros a otros procedimientos; tenemos la
+libertad de escoger nuestra propia estrategia. Nosotros intentamos ser
+consistentes con la convención que decidimos usar para pasar parámetros y
+regresar resultados. Usamos dos mecanismos, dependiendo del tipo de dato que
+deseamos manejar: valores enteros y valores de punto flotante.
+
 \subsubsection{Valores de punto flotante}
 
+Los valores de punto flotante se pasan y regresan a través del stack del FPU.
+El procedimiento que hace la llamada carga los valores en ST(0) ---en
+ocasiones, también en ST(1)--- antes de llamar al procedimiento, y el
+procedimiento que es llamado deja sus resultados en el stack también, antes de
+regresar. Cada procedimiento tiene, en forma de comentarios, la descripción del
+estado de stack que espera antes de iniciar el procedimiento y de cómo va a
+quedar el stack al final.
+
+Por ejemplo, el procedimiento \texttt{EvalSinCos} espera dos copias del valor
+de $x$, una en ST(0) para calcular $\sin(x)$ y otra en ST(1) para calcular
+$\cos(x)$, y regresa tres valores: $\sin^2(x) + \cos^2(x)$ en ST(0), $\cos(x)$
+en ST(1) y $\sin(x)$ en ST(0). Lo anterior está documentado a manera de
+comentario en \texttt{eval-sin-cos.asm}:
+
+\begin{lstlisting}[language=Python]
+; Entrada FPU:   ST(0) = x_sin, ST(1) = x_cos
+; Salida  FPU:   ST(0) = f1(x),  ST(1) = cos(x),  ST(2) = sin(x)
+\end{lstlisting}
+
 \subsubsection{Valores enteros}
+
+Los argumentos enteros se pasan a través del \textit{runtime stack}. El
+procedimiento que hace la llamada hace un \texttt{PUSH} del valor que quiere
+pasar al procedimiento que está llamando y luego ejecuta la instrucción
+\texttt{CALL}. El procedimiento llamado accede a los parámetros apoyándose en
+\texttt{ESP} y tomando en cuenta la dirección de retorno y cualquier otro
+registro que se haya guardado antes de acceder al parámetro.
+
+Por ejemplo, en \texttt{SinFloat}, después de almacenar EAX, ECX y EDX (lo que
+toma 12 bytes), podemos encontrar el parámetro $n$ ---el número de iteraciones
+a realizar--- en \texttt{[ESP + 16]}, pues se suman los 12 bytes de los
+registros almacenados más los 4 bytes de la dirección de retorno.
+
+Al momento de finalizar un procedimiento, hay dos estrategias que usamos en el
+código. La primera estrategia, usada en procedimientos como \texttt{SinFloat},
+\texttt{CosFloat}, \texttt{EvalGrados} e \texttt{ImprimeGrados}, consiste en
+limpiar los propios argumentos del \textit{stack} al usar \texttt{RET 4}. La
+segunda estrategia, que usamos en \texttt{ConvierteRangoSin} y
+\texttt{ConvierteRangoCos}, consiste en regresar el resultado en la ubicación
+de memoria en la que estaba el parámetro pasado al procedimiento (es decir,
+\texttt{[ESP + 8]} después de haber guardado EAX). Así, el procedimiento que
+hizo la llamada puede acceder al resultado al hacer \texttt{POP}. Estos
+procedimientos simplemente usan \texttt{RET} sin un operando.
 
 \section{Implementación}
 
