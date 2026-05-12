@@ -13,7 +13,7 @@
 
 % ---- IMÁGENES ----
 \usepackage{graphicx}
-\graphicspath{ {imgs/} }
+\graphicspath{ {figs/} }
 
 % ---- FORMATO DE TÍTULOS ----
 \usepackage{titlesec}
@@ -474,7 +474,6 @@ La reducción de rango está a cargo de \texttt{ConvierteRangoSin} y
 para hacer la reducción:
 \begin{figure}[H]
 \centering
-  % \begin{tabularx}{\textwidth}{p{10em} p{10em} X}
 \begin{tabular}{l l l}
     Rango de entrada & Valor regresado & Identidad usada \\
     \hline \hline
@@ -482,11 +481,15 @@ para hacer la reducción:
     $90\degree < x \leq 180\degree$ & $180\degree - x$ & $\sin(x) = \sin(180\degree - x)$ \\ \hline
     $180\degree < x \leq 270\degree$ & $180\degree - x$ & $\sin(x) = - \sin(x - 180\degree) = \sin(180\degree - x)$ \\ \hline
     $270\degree < x \leq 360\degree$ & $x - 360\degree$ & $\sin(x) = \sin(x - 360\degree)$
-  % \end{tabularx}
 \end{tabular}
 \caption{Reducción de rango para $\sin(x)$.}
 \label{tabla-rango}
 \end{figure}
+
+Para el coseno, la simplificación se apoya en el hecho de que $\cos(x) =
+\cos(360\degree - x)$, por lo que el rango de salida es
+de $[0\degree, 180\degree]$; si $x \leq 180\degree$, no se altera; si $x >
+180\degree$, entonces regresamos $360\degree - x$.
 
 \subsection{Retos de implementación}
 
@@ -495,6 +498,109 @@ para hacer la reducción:
 \section{Capturas de pantalla}
 
 \section{Consideraciones de Linux}
+
+\textcite{IrvineBook} se concentra en sistemas de Windows y MASM. Sin embargo,
+como reto adicional, nosotros decidimos intentar ejecutar todo en un sistema
+basado en Linux. Realizamos todo el desarrollo de este proyecto en una máquina
+con un procesador Intel i5-4570R y con sistema operativo Ubuntu 22.04.5 LTS
+x86\_64. La figura \ref{fig:neofetch} muestra la salida del comando
+\texttt{neofetch} para describir con detalle el sistema utilizado.
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.7\linewidth]{neofetch.png}
+  \caption{Salida del comando \texttt{neofetch}.}
+  \label{fig:neofetch}
+\end{figure}
+
+El ensamblador que utilizamos fue UASM \parencite{UASM}, que es compatible con
+MASM y está basado en JWasm. Una vez creados los objetos, para enlazarlos nos
+apoyamos del compilador de C, \texttt{gcc}. Al momento de enlazar, dependemos
+fuertemente de la librería estática \texttt{IrvingT} \parencite{irvingt}. Esta
+librería es una reimplementación de la librería \texttt{Irvine32} de
+\textcite{IrvineBook}.
+
+Para este proyecto en específico, tuvimos que modificar un poco el código de
+\textcite{irvingt} para incluir las siguientes funciones que ofrece
+\texttt{Irvine32}:
+\begin{itemize}
+  \item \texttt{WriteFloat}
+  \item \texttt{ReadFloat}
+  \item \texttt{ReadInt}
+  \item \texttt{GetMseconds}
+\end{itemize}
+
+En realidad, las modificaciones necesarias consisten en agregar las llamadas
+correctas en el código fuente de C y agregar el procedimiento al archivo
+\texttt{.S}. Por ejemplo, para agregar el procedimiento \texttt{WriteFloat},
+hay que agregar lo siguiente a \texttt{irvingt-real.c}:
+\begin{lstlisting}[language={c}]
+#ifndef IRVINGT_HAVE_ALONG
+void WriteFloat_Real(double x) {
+  printf("%.10f", x);
+  fflush(stdout);
+}
+#endif
+\end{lstlisting}
+y las siguientes instrucciones a \texttt{irvingt.S}:
+\begin{lstlisting}[language={c}]
+#ifndef IRVINGT_HAVE_ALONG
+.globl WriteFloat
+.type WriteFloat, @function
+
+WriteFloat:
+  pushal
+  pushfl
+
+  subl $8, %esp
+  fstl (%esp)
+  call WriteFloat_Real
+  addl $8, %esp
+
+  popfl
+  popal
+
+  ret
+#endif
+\end{lstlisting}
+Así, ya podemos hacer llamadas a \texttt{WriteFloat} desde nuestro código.
+
+Para facilitar el ensamblado y enlazado del código, y no tener que estar
+ejecutando la instrucción una vez por cada módulo, creamos un Makefile que
+automatiza todo el proceso. El contenido es el siguiente:
+\begin{lstlisting}[language={make}]
+# Tools
+ASM = uasm
+CC  = gcc
+
+# Flags
+ASMFLAGS = -I./Irvine -zcw -elf
+
+# Config
+TARGET  = asm-trig
+MODULES = main sine-n cosine-n square-float eval-sin-cos pide-radianes \
+    convierte-rango eval-grados pide-grados imprime-grados tabla-grados
+
+OBJS = $(addsuffix .o, $(MODULES))
+
+# Rules
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+    $(CC) -m32 $(OBJS) -o $(TARGET) -L./irvingt -l:irvingt.a
+
+%.o: %.asm
+    $(ASM) $(ASMFLAGS) -Fo=$@ $<
+
+clean:
+    rm -f *.o $(TARGET)
+\end{lstlisting}
+
+Esencialmente, estamos ejecutando \texttt{uasm} con las banderas
+correspondientes una vez por cada módulo \texttt{.asm} que tenemos para crear
+el correspondiente \texttt{.o}; y al final enlazamos todo con \texttt{gcc}. La
+creación de un Makefile también ayuda a que solamente se ejecuta \texttt{uasm}
+para los archivos fuente que hemos modificado, no todo el tiempo. Así, con solo
+ejecutar \texttt{make} en la terminal, se crea automáticamente un ejecutable.
 
 \printbibliography
 
