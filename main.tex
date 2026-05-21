@@ -146,7 +146,73 @@ clase de Organización y programación de computadoras de \textcite{RamonRios}.
 
 \subsection{Lenguaje ensamblador}
 
+Cada instrucción que ejecuta un procesador es una secuencia de bytes, una
+cadena binaria que los humanos difícilmente podemos entender directamente.
+Escribir programas directamente en lenguaje de máquina ---las cadenas
+binarias--- no es una tarea práctica para los humanos, por lo que existen
+abstracciones que facilitan el trabajo con las computadoras. Una de las
+primeras abstracciones que se desarrollaron fue el lenguaje ensamblador, que
+ofrece una correspondencia uno a uno (o casi uno a uno) entre instrucciones
+mnemónicas (que podemos leer) y sus codificaciones en lenguaje de máquina.
+
+Con esto, los humanos escribimos los mnemónicos, un ensamblador (en este
+proyecto, UASM) traduce los mnemónicos a código objeto, y un enlazador combina
+los archivos objeto para producir un ejecutable final. A diferencia de los
+lenguajes de alto nivel, en el lenguaje ensamblador el programador es
+responsable de cosas que normalmente damos por hecho: el manejo del
+\textit{stack}, el paso de parámetros entre procedimientos, la preservación de
+registros, etcétera.
+
+Hay directivas como \texttt{.DATA}, \texttt{.CODE}, \texttt{PROC} que no
+producen instrucciones de máquina, pero guían al ensamblador en la organización
+de la salida. También hay directivas como \texttt{.IF}/\texttt{.ENDIF} que se
+traducen automáticamente a saltos condicionales y etiquetas, lo cual facilita
+considerablemente la legibilidad del código.
+
+Como menciona \textcite{IrvineBook}, los programadores que usan lenguaje
+ensamblador necesitan manejar los datos a un nivel físico, por lo que debemos
+acostumbrarnos a examinar memoria y registros. Veamos ahora cómo se puede
+almacenar a los datos, empezando por los datos enteros.
+
 \subsection{Tipos de datos enteros}
+
+La arquitectura x86 soporta enteros de varios tamaños, cada uno con su
+correspondiente directiva en MASM para reservar e inicializar memoria. Los
+valores se almacenan en binario (nuevamente, secuencias de unos y ceros), y la
+unidad básica es el \textit{byte}, que concatena 8 bits; cada bit puede tomar
+el valor de uno o cero. La tabla en la figura \ref{tabla-enteros} contiene a
+tres tamaños de enteros comunes.
+\begin{figure}[ht]
+\centering
+  \begin{tabularx}{\textwidth}{l l X X}
+    Directiva & Tamaño & Rango (con signo) & Rango (sin signo) \\
+    \hline \hline
+    \texttt{BYTE}  & 8 bits  & $-128$ a $128$ & $0$ a $255$ \\ \hline
+    \texttt{WORD}  & 16 bits & $-32{,}768$ a $32{,}767$ & $0$ a $65{,}535$ \\ \hline
+    \texttt{DWORD} & 32 bits & $-2{,}147{,}483{,}648$ a $2{,}147{,}483{,}647$ &
+      $0$ a $4{,}294{,}967{,}295$ \\
+  \end{tabularx}
+\caption{Enteros en MASM.}
+\label{tabla-enteros}
+\end{figure}
+
+Los enteros con signo utilizan una representación en complemento a dos, donde
+el bit más significativo funciona como bit de signo. Pero cabe aclarar que se
+almacenan igual qeu los enteros sin signo; es responsabilidad del programador
+saber con qué tipo de dato está trabajando. La distinción importa especialmente
+al momento de hacer comparaciones condicionales, pero las directivas ayudan
+mucho con esto.
+
+En este proyecto, los datos enteros aparecen principalmente en dos contextos:
+el contador de iteraciones en las series de Taylor, almacenado como
+\texttt{DWORD} y los valores en grados, que también son almacenados como
+\texttt{DWORD}. También usamos cadenas de caracteres como sucesiones de
+\texttt{BYTE} que terminan en un byte nulo para los mensajes que se imprimen al
+usuario.
+
+Para reservar espacio sin inicializar un valor, usamos el operador \texttt{?};
+por ejemplo, \texttt{deg\_val DWORD ?}. Para cuando sí queremos asignar un
+valor, basta con escribirlo literalmente, como en \texttt{val180 DWORD 180}.
 
 \subsection{Tipos de datos de punto flotante}
 
