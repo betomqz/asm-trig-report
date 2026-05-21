@@ -231,7 +231,7 @@ anterior, por lo que las series convergen rápidamente. Aunque no es necesario
 que $\vert x \vert < 1$, sí conviene que $\vert x \vert$ sea pequeño. Por
 ejemplo, para $\sin(x)$ con $k=10$ y $\vert x \vert \leq \frac{\pi}{2}$, por
 \eqref{residuo-sin} tenemos que
-\begin{equation}
+\begin{equation} \label{eq:residuo-k10}
   \vert R_{2(10)+1}(x) \vert \leq \frac{ \vert x \vert^{22} }{ (22)! }
   \leq \frac{ \vert \pi/2 \vert^{22} }{ (22)! }
   \approx 1.836 \times 10^{-17},
@@ -439,7 +439,7 @@ determina por el parámetro $n$ pasado al procedimiento, y al final del
 procedimiento se descartan todos los valores intermedios; solamente dejamos el
 resultado de la suma en ST(0).
 
-\subsection{Conversión de grados a radianes y reducción de rango}
+\subsection{Conversión de grados a radianes y reducción de rango} \label{sec:rango}
 
 El procedimiento \texttt{EvalGrados} se encarga de orquestar tres cosas: la
 conversión de  grados a radianes, reducción o simplificación del rango, y
@@ -491,9 +491,62 @@ Para el coseno, la simplificación se apoya en el hecho de que $\cos(x) =
 de $[0\degree, 180\degree]$; si $x \leq 180\degree$, no se altera; si $x >
 180\degree$, entonces regresamos $360\degree - x$.
 
-\subsection{Retos de implementación}
+\subsection{Retos de implementación y consideraciones}
 
-\subsection{Consideraciones}
+Al programar este proyecto, nos enfrentamos a varios retos. El desarrollo de un
+proyecto en lenguaje ensamblador es considerablemente más complicado que cuando
+se usa un lenguaje de alto nivel. En particular, encontrar \textit{bugs} en el
+código es más difícil porque no contamos con las herramientas que usamos
+normalmente, como \textit{debuggers}.
+
+Un error que fue especialmente difícil detectar fue una confusión en el momento
+de usar \texttt{FDIVP ST(1), ST(0)}. Originalmente, habíamos escrito los
+operandos al revés (es decir, \texttt{FDIVP ST(0), ST(1)}), lo cual realmente
+no tiene sentido, pues la idea de agregar el \textit{pop} al final de la
+operación es que se libere ST(0), por lo que no hace sentido almacenar el
+resultado de la división ahí y luego liberarlo en la misma instrucción. Esta
+operación está en el núcleo de los bucles para calcular el seno y coseno, por
+lo que tuvimos que ir siguiendo cuidadosamente el flujo de las operaciones,
+agregando la impresión del stack del FPU a consola en prácticamente todos los
+pasos para poder encontrar el error.
+
+En general, los principales retos vinieron del manejo del stack del FPU.
+Incluso para ser lenguaje ensamblador, es muy diferente a trabajar con valores
+enteros. Además, la naturaleza circular del stack del FPU nos obliga a tener
+mucho cuidado al querer cargar un valor; el espacio es muy limitado y hay que
+cuidarnos de no sobreescribir valores. En nuestro código, intentamos no manejar
+más de 5 valores en el FPU stack, lo cual ya está peligrosamente cerca de los 8
+valores permitidos.
+
+A la hora de interrumpir el ciclo que calcula los términos de la serie de
+Taylor, nos enfrentamos a dos alternativas:
+\begin{enumerate}
+  \item Al llegar a un número determinado de iteraciones, o
+  \item Cuando el $k$-ésimo término sea menor que una tolerancia determinada.
+\end{enumerate}
+Nosotros nos inclinamos por la primera opción. Como vimos con la ecuación
+\eqref{eq:residuo-k10}, $k=10$ iteraciones son suficientes para valores
+adecuados de $x$. Además, con esta elección nos ahorramos el problema de
+comparar valores de punto flotante en cada iteración, y, en caso de un error,
+nos aseguramos de no estar en el ciclo eternamente. La reducción de rango que
+discutimos en la sección \ref{sec:rango} nos permite asegurarnos de que $x$ es
+un valor adecuado, por lo que no perdemos precisión al fijar el número de
+iteraciones.
+
+La reducción de rango trae consigo un aumento en el número de operaciones que
+hay que realizar. Hay varias instrucciones en los procedimientos que usamos
+para esta conversión. Sin embargo, consideramos que vale la pena hacer este
+cambio, pues esto permite que la serie converja en menos términos, lo que en
+última instancia termina reduciendo el número de instrucciones necesarias.
+
+Otra consideración es que la identidad $f_1(x) = \sin^2(x) + \cos^2(x)$, que
+debería ser exactamente 1. En la práctica, $f_1(x)$ no siempre es exactamente
+1, pero no por eso deja de servir como diagnóstico para saber cuando algo está
+mal. Los errores de aproximación por serie de Taylor, además de los errores por
+tener precisión finita, hacen que la operación rara vez el valor sea 1 con
+total precisión, pero, como veremos en las capturas de pantalla, si mostramos
+solamente los primeros decimales, normalmente sí está lo suficientemente cerca
+en nuestro programa.
 
 \section{Consideraciones de Linux} \label{sec:linux}
 
