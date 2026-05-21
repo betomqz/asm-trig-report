@@ -495,9 +495,7 @@ de $[0\degree, 180\degree]$; si $x \leq 180\degree$, no se altera; si $x >
 
 \subsection{Consideraciones}
 
-\section{Capturas de pantalla}
-
-\section{Consideraciones de Linux}
+\section{Consideraciones de Linux} \label{sec:linux}
 
 \textcite{IrvineBook} se concentra en sistemas de Windows y MASM. Sin embargo,
 como reto adicional, nosotros decidimos intentar ejecutar todo en un sistema
@@ -507,7 +505,7 @@ x86\_64. La figura \ref{fig:neofetch} muestra la salida del comando
 \texttt{neofetch} para describir con detalle el sistema utilizado.
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=0.7\linewidth]{neofetch.png}
+  \includegraphics[width=0.85\linewidth]{neofetch.png}
   \caption{Salida del comando \texttt{neofetch}.}
   \label{fig:neofetch}
 \end{figure}
@@ -601,6 +599,62 @@ el correspondiente \texttt{.o}; y al final enlazamos todo con \texttt{gcc}. La
 creación de un Makefile también ayuda a que solamente se ejecuta \texttt{uasm}
 para los archivos fuente que hemos modificado, no todo el tiempo. Así, con solo
 ejecutar \texttt{make} en la terminal, se crea automáticamente un ejecutable.
+
+\section{Capturas de pantalla}
+
+Las capturas de pantalla aquí mostradas son de una ejecución del programa en un
+ambiente de Windows, aunque, inicialmente, el programa fue diseñado para
+ejecutarse en un sistema Linux. Aunque vimos los detalles del desarrollo y la
+implementación particulares a Linux en la sección \ref{sec:linux}, ahora
+mostraremos lo que ve el usuario final del proyecto.
+
+Para ejecutar en Windows, fue necesaria una pequeña modificación a la hora de
+declarar los procedimientos externos: tuvimos que agregar un \texttt{@0} al
+final del nombre del procedimiento. Pero con eso, Visual Studio fue capaz de
+ensamblar y enlazar todo. El código funciona exactamente igual que en Linux,
+con la única consideración de que no muestra bien las tildes.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\linewidth]{screenshots/compile.png}
+  \caption{Compilación exitosa del proyecto en Visual Studio.}
+  \label{fig:ss-compile}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\linewidth]{screenshots/menu.png}
+  \caption{Vista del menú principal.}
+  \label{fig:ss-menu}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\linewidth]{screenshots/01.png}
+  \caption{Ejecución de la opción 1: lectura de $x$ en grados y evaluación.}
+  \label{fig:ss-01}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\linewidth]{screenshots/02.png}
+  \caption{Ejecución de la opción 2: lectura de $x$ en radianes y evaluación.}
+  \label{fig:ss-02}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\linewidth]{screenshots/03.png}
+  \caption{Ejecución de la opción 3: tabla de 0$\degree$ a 360$\degree$.}
+  \label{fig:ss-03}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\linewidth]{screenshots/04.png}
+  \caption{Ejecución de la opción 4: salir del programa.}
+  \label{fig:ss-04}
+\end{figure}
 
 \printbibliography
 
