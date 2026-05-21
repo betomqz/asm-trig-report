@@ -161,7 +161,7 @@ Según \textcite{ThomasBook}, si $f$ es una función con derivadas de todos los
 \textbf{serie de Taylor generada por $f$ en $x=a$} es
 \begin{equation}
   \sum_{k=0}^{\infty} \frac{f^{(k)}(a)}{k!} (x-a)^k = f(a) + f'(a)(x-a) +
-    \frac{f''(a)}{2!}(x-a)^2 + \cdots.
+    \frac{f''(a)}{2!}(x-a)^2 + \cdots,
 \end{equation}
 y la \textbf{serie de Maclaurin generada por $f$} es
 \begin{equation}
@@ -176,12 +176,12 @@ convención en este reporte.
 
 No es difícil ver que la serie de Taylor para $\sin(x)$ en $x=0$ es
 \begin{equation}
-  \sum_{k=0}^{\infty} = \frac{(-1)^k x^{2k+1}}{(2k+1)!}
+  \sum_{k=0}^{\infty} \frac{(-1)^k x^{2k+1}}{(2k+1)!}
     = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \cdots,
 \end{equation}
 mientras que la serie de Taylor para $\cos(x)$ en $x=0$ es
 \begin{equation}
-  \sum_{k=0}^{\infty} = \frac{(-1)^k x^{2k}}{(2k)!}
+  \sum_{k=0}^{\infty} \frac{(-1)^k x^{2k}}{(2k)!}
     = 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \cdots.
 \end{equation}
 
@@ -204,10 +204,10 @@ obtener
   \vert R_{2k+1}(x) \vert \leq \frac{ \vert x \vert^{2k+2} }{ (2k+2)! }.
 \end{equation}
 Como el lado derecho de \eqref{residuo-sin} tiende a cero cuando $k \to
-\infty$, entonces $\vert R_{2k+1}(x) \to 0$ y la serie de Taylor para $\sin(x)$
-converge a $\sin(x)$ para toda $x$. Por lo tanto,
+\infty$, entonces $\vert R_{2k+1}(x) \vert \to 0$ y la serie de Taylor para
+$\sin(x)$ converge a $\sin(x)$ para toda $x$. Por lo tanto,
 \begin{equation} \label{eq:taylor-sin}
-  \sin(x) = \sum_{k=0}^{\infty} = \frac{(-1)^k x^{2k+1}}{(2k+1)!}
+  \sin(x) = \sum_{k=0}^{\infty} \frac{(-1)^k x^{2k+1}}{(2k+1)!}
   = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \cdots.
 \end{equation}
 
@@ -219,14 +219,14 @@ De la misma manera que antes, $R_{2k} \to 0$ cuando $k \to \infty$. Por lo
 tanto, la serie converge a $\cos(x)$ para todo valor de $x$, lo que quiere
 decir que
 \begin{equation} \label{eq:taylor-cos}
-  \cos(x) = \sum_{k=0}^{\infty} = \frac{(-1)^k x^{2k}}{(2k)!}
+  \cos(x) = \sum_{k=0}^{\infty} \frac{(-1)^k x^{2k}}{(2k)!}
   = 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \cdots.
 \end{equation}
 
 Notemos que, aunque ambas series convergen para toda $x$ ---lo que quiere decir
 que eventualmente producirán un resultado cercano a la función, sin importar la
 entrada---, la convergencia depende de manera importante de $\vert x \vert$. Si
-$\vert x \vert < 1$, cada término sucesivo es dramáticamente más pequeño que el
+$\vert x \vert < 1$, cada término sucesivo es notablemente más pequeño que el
 anterior, por lo que las series convergen rápidamente. Aunque no es necesario
 que $\vert x \vert < 1$, sí conviene que $\vert x \vert$ sea pequeño. Por
 ejemplo, para $\sin(x)$ con $k=10$ y $\vert x \vert \leq \frac{\pi}{2}$, por
@@ -251,7 +251,7 @@ grados a radianes.
 \subsection{Estructura modular}
 
 El código está dividido en 11 archivos con terminación \texttt{.asm}. Cada
-archivo contiene uno o dos procedimientos relacionados entre sí. En la figura
+archivo contiene uno o dos procedimientos relacionados entre sí. En la tabla
 \ref{tabla-modulos}, presentamos una tabla con los procedimientos que tiene
 cada archivo y una breve descripción.
 
@@ -312,8 +312,8 @@ de proveer los métodos básicos para el cálculo de seno, coseno y cuadrados de
 un número de punto flotante.
 
 La figura \ref{fig:dependencias} solamente describe qué procedimientos mandan a
-llamar otros procedimientos, no describe cómo se comparten información entre sí
-los procedimientos. Veamos ahora la estrategia que seguimos para este problema.
+llamar otros procedimientos, no describe cómo se comparten información entre
+sí. Veamos ahora la estrategia que seguimos para este problema.
 
 \subsection{Estrategia de paso de parámetros}
 
@@ -337,7 +337,7 @@ quedar el stack al final.
 Por ejemplo, el procedimiento \texttt{EvalSinCos} espera dos copias del valor
 de $x$, una en ST(0) para calcular $\sin(x)$ y otra en ST(1) para calcular
 $\cos(x)$, y regresa tres valores: $\sin^2(x) + \cos^2(x)$ en ST(0), $\cos(x)$
-en ST(1) y $\sin(x)$ en ST(0). Lo anterior está documentado a manera de
+en ST(1) y $\sin(x)$ en ST(2). Lo anterior está documentado a manera de
 comentario en \texttt{eval-sin-cos.asm}:
 
 \begin{lstlisting}[language={[x86masm]Assembler}]
@@ -442,7 +442,7 @@ resultado de la suma en ST(0).
 \subsection{Conversión de grados a radianes y reducción de rango} \label{sec:rango}
 
 El procedimiento \texttt{EvalGrados} se encarga de orquestar tres cosas: la
-conversión de  grados a radianes, reducción o simplificación del rango, y
+conversión de grados a radianes, reducción o simplificación del rango, y
 finalmente la evaluación de las funciones trigonométricas. Este procedimiento
 convierte grados a radianes siguiendo una estrategia de tratar con los datos
 enteros primero; es decir, si tenemos que la conversión de grados a radianes
@@ -503,7 +503,7 @@ Un error que fue especialmente difícil detectar fue una confusión en el moment
 de usar \texttt{FDIVP ST(1), ST(0)}. Originalmente, habíamos escrito los
 operandos al revés (es decir, \texttt{FDIVP ST(0), ST(1)}), lo cual realmente
 no tiene sentido, pues la idea de agregar el \textit{pop} al final de la
-operación es que se libere ST(0), por lo que no hace sentido almacenar el
+operación es que se libere ST(0), por lo que no tiene sentido almacenar el
 resultado de la división ahí y luego liberarlo en la misma instrucción. Esta
 operación está en el núcleo de los bucles para calcular el seno y coseno, por
 lo que tuvimos que ir siguiendo cuidadosamente el flujo de las operaciones,
@@ -514,7 +514,7 @@ En general, los principales retos vinieron del manejo del stack del FPU.
 Incluso para ser lenguaje ensamblador, es muy diferente a trabajar con valores
 enteros. Además, la naturaleza circular del stack del FPU nos obliga a tener
 mucho cuidado al querer cargar un valor; el espacio es muy limitado y hay que
-cuidarnos de no sobreescribir valores. En nuestro código, intentamos no manejar
+cuidarnos de no sobrescribir valores. En nuestro código, intentamos no manejar
 más de 5 valores en el FPU stack, lo cual ya está peligrosamente cerca de los 8
 valores permitidos.
 
@@ -539,12 +539,12 @@ para esta conversión. Sin embargo, consideramos que vale la pena hacer este
 cambio, pues esto permite que la serie converja en menos términos, lo que en
 última instancia termina reduciendo el número de instrucciones necesarias.
 
-Otra consideración es que la identidad $f_1(x) = \sin^2(x) + \cos^2(x)$, que
-debería ser exactamente 1. En la práctica, $f_1(x)$ no siempre es exactamente
-1, pero no por eso deja de servir como diagnóstico para saber cuando algo está
-mal. Los errores de aproximación por serie de Taylor, además de los errores por
-tener precisión finita, hacen que la operación rara vez el valor sea 1 con
-total precisión, pero, como veremos en las capturas de pantalla, si mostramos
+Otra consideración es que la identidad $f_1(x) = \sin^2(x) + \cos^2(x)$ debería
+ser exactamente 1. En la práctica, $f_1(x)$ no siempre es exactamente 1, pero
+no por eso deja de servir como diagnóstico para saber cuando algo está mal. Los
+errores de aproximación por serie de Taylor, además de los errores por tener
+precisión finita, hacen que la operación rara vez el valor sea 1 con total
+precisión, pero, como veremos en las capturas de pantalla, si mostramos
 solamente los primeros decimales, normalmente sí está lo suficientemente cerca
 en nuestro programa.
 
@@ -649,7 +649,7 @@ clean:
 Esencialmente, estamos ejecutando \texttt{uasm} con las banderas
 correspondientes una vez por cada módulo \texttt{.asm} que tenemos para crear
 el correspondiente \texttt{.o}; y al final enlazamos todo con \texttt{gcc}. La
-creación de un Makefile también ayuda a que solamente se ejecuta \texttt{uasm}
+creación de un Makefile también ayuda a que solamente se ejecute \texttt{uasm}
 para los archivos fuente que hemos modificado, no todo el tiempo. Así, con solo
 ejecutar \texttt{make} en la terminal, se crea automáticamente un ejecutable.
 
