@@ -310,6 +310,29 @@ precisión simple de $+1101.101$ es
 
 \subsection{Arquitectura del FPU y registros}
 
+El FPU es un coprocesador integrado en cada CPU x86 desde el Intel486
+\parencite{IrvineBook}. Su arquitectura difiere fundamentalmente de la de los
+registros de propósito general: en lugar de un banco de registros
+direccionables individualmente, el FPU está optimizado para evaluar expresiones
+en notación postfija.
+
+El FPU contiene ocho registros de 80 bits, denotados $R0$ a $R7$, organizados
+como una pila circular. Un campo llamado TOP de 3 bits indica cuál de los
+registros es el \textit{top} actual del stack, al que nos referimos como ST(0).
+Los demás registros se direccionan relativamente al \textit{top}: ST(1), ST(2),
+etc.
+
+La dinámica del \textit{stack} es la siguiente:
+\begin{itemize}
+  \item \textit{Push}: TOP se decrementa en 1 y el valor se almacena en el
+    nuevo ST(0).
+  \item \textit{Pop}: se copia lo almacenado en ST(0) a un operando y luego se
+    incrementa TOP en 1.
+  \item Naturaleza circular: si TOP es 0 antes de un \textit{push}, TOP se va a
+    7; si TOP es 7 antes de un \textit{pop}, se va a 0. Hacer \textit{push} a
+    un stack lleno dispara una excepción.
+\end{itemize}
+
 \section{Conceptos matemáticos}
 
 \subsection{Series de Taylor para seno y coseno}
