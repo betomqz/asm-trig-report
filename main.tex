@@ -184,14 +184,14 @@ el valor de uno o cero. La tabla en la figura \ref{tabla-enteros} contiene a
 tres tamaños de enteros comunes.
 \begin{figure}[ht]
 \centering
-  \begin{tabularx}{\textwidth}{l l X X}
+  \begin{tabular}{l l l l}
     Directiva & Tamaño & Rango (con signo) & Rango (sin signo) \\
     \hline \hline
     \texttt{BYTE}  & 8 bits  & $-128$ a $128$ & $0$ a $255$ \\ \hline
     \texttt{WORD}  & 16 bits & $-32{,}768$ a $32{,}767$ & $0$ a $65{,}535$ \\ \hline
     \texttt{DWORD} & 32 bits & $-2{,}147{,}483{,}648$ a $2{,}147{,}483{,}647$ &
       $0$ a $4{,}294{,}967{,}295$ \\
-  \end{tabularx}
+  \end{tabular}
 \caption{Enteros en MASM.}
 \label{tabla-enteros}
 \end{figure}
@@ -215,6 +215,98 @@ por ejemplo, \texttt{deg\_val DWORD ?}. Para cuando sí queremos asignar un
 valor, basta con escribirlo literalmente, como en \texttt{val180 DWORD 180}.
 
 \subsection{Tipos de datos de punto flotante}
+
+El estándar IEEE 754 define el formato de los números de punto flotante en
+binario que utilizan los procesadores x86. La idea es que un número de punto
+flotante se construye a partir de tres componentes: el signo, el exponente y el
+significando (también llamado mantisa). Por ejemplo, en el número $-1.23154
+\times 10^5$, el signo es negativo, el significando es $1.23154$ y el exponente
+es $5$ \parencite{IrvineBook}.
+
+La arquitectura x86 soporta tres formatos principales, descritos en la tabla de
+la figura \ref{tabla-flotantes}.
+\begin{figure}[ht]
+\centering
+  \begin{tabular}{l c l l}
+    Precisión & Total de bits & S, E, F & Rango aproximado \\
+    \hline \hline
+    Simple (\textit{short real}) & 32 & 1, 8, 23 & $2^{-126}$ a $2^{127}$ \\ \hline
+    Doble (\textit{long real}) & 64 & 1, 11, 52 & $2^{-1022}$ a $2^{1023}$ \\ \hline
+    Extendida (\textit{extended real}) & 80 & 1, 16, 63 & $2^{-16382}$ a $2^{16383}$ \\
+  \end{tabular}
+\caption{Formatos del IEEE para binarios en punto flotante.}
+\label{tabla-flotantes}
+\end{figure}
+
+Como podemos observar, el signo siempre se codifica en un bit. Si el bit es 1,
+el número es negativo; si es 0, el número es positivo. Cada uno de los tipos de
+precisión que describimos en la tabla de la figura \ref{tabla-flotantes} tiene
+un tipo de dato que soporta MASM: \texttt{REAL4} corresponde a un real de 4
+bytes (32 bits, precisión simple); \texttt{REAL8} a uno de precisión doble y
+\texttt{REAL10} a uno de precisión extendida. En este proyecto, usamos
+\texttt{REAL8} para todos los valroes de punto flotante que almacenamos en
+memoria y toda la aritmética se realiza en precisión extendida de 80 bits sobre
+el stack del FPU.
+
+El significando de un número de punto flotante consiste en los dígitos a la
+izquierda y derecha del punto decimal. Para representarlo, usamos el mismo
+concepto que para convertir números enteros. Por ejemplo, el decimal 123.154 se
+representa por la siguiente suma:
+\begin{equation*}
+  123.154 = (1 \times 10^{2}) + (2 \times 10^{1}) + (3 \times 10^{0}) +
+  (1 \times 10^{-1}) + (5 \times 10^{-2}) + (4 \times 10^{-3})
+\end{equation*}
+Todos los dígitos a la izquierda del punto decimal tienen exponentes positivos
+y los de la derecha tienen exponentes negativos. Los números binarios de punto flotante usan el mismo concepto. Por ejemplo, el valor binario 11.1011 es
+\begin{equation*}
+  11.1011 = (1 \times 2^{1}) + (1 \times 2^{0}) + (1 \times 2^{-1}) +
+  (0 \times 10^{-2}) + (1 \times 10^{-3}) + (1 \times 2^{-4}).
+\end{equation*}
+
+Es imposible representar a todos los números reales con un número finito de
+bits. Por ejemplo, si contamos con 5 bits para el significando, no tenemos
+manera de representar los valores entre 1.1111 y 10.000 en binario
+\parencite{IrvineBook}. Para mitigar un poco esto, los números binarios de
+punto flotante se almacenan en una forma normalizada, que permite maximizar la
+precisión del significando. La normalización consiste en recorrer el punto
+binario hasta que un solo 1 aparezca a la izquierda del punto; como ese dígito
+siempre es un $1$, el estándar no lo almacena en memoria. Gracias a esto, un
+campo de 23 bits de fracción ofrece 24 bits de precisión efectiva en el
+significando. La tabla de la figura \ref{tabla-normalizados}, tomada de
+\textcite{IrvineBook}, muestra unos ejemplos.
+
+\begin{figure}[ht]
+\centering
+  \begin{tabular}{l l}
+    Número & Normalización \\
+    \hline \hline
+    $1110.1$ & $1.1101 \times 2^{3}$ \\ \hline
+    $.000101$ & $1.01 \times 2^{-4}$ \\ \hline
+    $1010001.$ & $1.010001 \times 2^{6}$ \\
+  \end{tabular}
+\caption{Valores normalizados.}
+\label{tabla-normalizados}
+\end{figure}
+
+Para representar exponentes negativos sin necesidad de un bit de signo
+adicional, se utiliza un sesgo que se suma al exponente real. Para precisión
+simple, el sesgo es de $127$, de manera que el exponente sesgado vive en el
+rango de $1$ a $254$. Los valores $0$ y $255$ están reservados para
+codificaciones especiales, de manera que el rango de exponentes verdaderos va
+de $-126$ a $+127$.
+
+Una vez que tenemos el bit de signo, el exponente, y el significando, es fácil
+generar un binario en punto flotante como lo define el estándar IEEE. por
+ejemplo, el binario $+1101.101$ es positivo, entonces tiene bit de signo 0.
+Para normalizarlo, tendríamos que mover el punto decimal tres lugares a la
+izquierda, ($+1.101101 \times 2^{3}$), por lo que el exponente es $3$ y el
+exponente sesgado es $127+3=130$, o $10000010$ en binario. Si quitamos el $1$
+de la izquierda del punto decimal, el significando simplemente queda como
+$101101$. Por lo tanto, la representación en binario de punto flotante con
+precisión simple de $+1101.101$ es
+\begin{equation*}
+  0 \quad 10000010 \quad 10110100000000000000000.
+\end{equation*}
 
 \subsection{Arquitectura del FPU y registros}
 
