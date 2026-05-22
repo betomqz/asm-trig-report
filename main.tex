@@ -144,6 +144,10 @@ clase de Organización y programación de computadoras de \textcite{RamonRios}.
 
 \section{Teoría}
 
+Empecemos por describir algunos fundamentos básicos del lenguaje ensamblador
+x86. Para un entendimiento profundo de los conceptos aquí discutidos, sugerimos
+fuertemente revisar a detalle el libro de \textcite{IrvineBook}.
+
 \subsection{Lenguaje ensamblador}
 
 Cada instrucción que ejecuta un procesador es una secuencia de bytes, una
@@ -333,7 +337,16 @@ La dinámica del \textit{stack} es la siguiente:
     un stack lleno dispara una excepción.
 \end{itemize}
 
+Con esto, concluimos la breve descripción teórica del lenguaje ensamblador.
+Revisemos ahora las matemáticas que sostienen el código desarrollado en este
+proyecto.
+
 \section{Conceptos matemáticos}
+
+Para implementar las funciones de seno y coseno, en lenguaje ensamblador, nos
+tenemos que concentrar en operaciones básicas. Es por esto que nos basaremos en
+las series de Taylor para hacer los cálculos. En esta sección, veremos las
+matemáticas que sostienen este proyecto.
 
 \subsection{Series de Taylor para seno y coseno}
 
@@ -428,6 +441,9 @@ motivó, como veremos más adelante, el ajuste de rango al momento de convertir
 grados a radianes.
 
 \section{Diseño del programa}
+
+Ya que revisamos la teoría matemática necesaria para desarrollar este proyecto,
+veremos ahora el diseño y la implementación del código.
 
 \subsection{Estructura modular}
 
@@ -890,6 +906,7 @@ con la única consideración de que no muestra bien las tildes.
   \label{fig:ss-04}
 \end{figure}
 
+\clearpage
 \printbibliography
 
 \end{document}
