@@ -202,7 +202,7 @@ tres tamaños de enteros comunes.
 
 Los enteros con signo utilizan una representación en complemento a dos, donde
 el bit más significativo funciona como bit de signo. Pero cabe aclarar que se
-almacenan igual qeu los enteros sin signo; es responsabilidad del programador
+almacenan igual que los enteros sin signo; es responsabilidad del programador
 saber con qué tipo de dato está trabajando. La distinción importa especialmente
 al momento de hacer comparaciones condicionales, pero las directivas ayudan
 mucho con esto.
@@ -693,8 +693,9 @@ de $[0\degree, 180\degree]$; si $x \leq 180\degree$, no se altera; si $x >
 Al programar este proyecto, nos enfrentamos a varios retos. El desarrollo de un
 proyecto en lenguaje ensamblador es considerablemente más complicado que cuando
 se usa un lenguaje de alto nivel. En particular, encontrar \textit{bugs} en el
-código es más difícil porque no contamos con las herramientas que usamos
-normalmente, como \textit{debuggers}.
+código es más difícil porque los mensajes de error del ensamblador no son nada
+específicos y generalmente solo sirven para que uno sepa que algo no está bien:
+es responsabilidad del programador encontrar cuál es el problema.
 
 Un error que fue especialmente difícil detectar fue una confusión en el momento
 de usar \texttt{FDIVP ST(1), ST(0)}. Originalmente, habíamos escrito los
